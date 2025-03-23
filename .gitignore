@@ -1,0 +1,23 @@
+# Backend
+backend/dist
+backend/node_modules
+backend/.env
+backend/npm-debug.log*
+
+# Frontend
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/build/
+frontend/pubspec.lock
+frontend/.env
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# System Files
+.DS_Store
+Thumbs.db

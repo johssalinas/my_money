@@ -1,0 +1,226 @@
+// This is your Prisma schema file for My Money app
+// Family management application with Kanban, shopping lists, meal planning, reminders, and finances
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de Usuario para los miembros de la familia
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      UserRole @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  activities    Activity[]
+  assignedTasks Activity[]     @relation("AssignedTo")
+  reminders     Reminder[]
+  wallets       Wallet[]
+  transactions  Transaction[]
+  shoppingItems ShoppingItem[] @relation("AddedBy")
+  mealPlans     MealPlan[]
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+  GUEST
+}
+
+// Modelo para las actividades del Kanban
+model Activity {
+  id          String         @id @default(uuid())
+  title       String
+  description String?
+  status      ActivityStatus
+  dueDate     DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  // Relaciones
+  createdById  String
+  createdBy    User    @relation(fields: [createdById], references: [id])
+  assignedToId String?
+  assignedTo   User?   @relation("AssignedTo", fields: [assignedToId], references: [id])
+}
+
+enum ActivityStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+// Modelo para las categorías de compras
+model ShoppingCategory {
+  id    String  @id @default(uuid())
+  name  String
+  color String?
+
+  // Relaciones
+  items ShoppingItem[]
+}
+
+// Modelo para los elementos de compra
+model ShoppingItem {
+  id          String              @id @default(uuid())
+  name        String
+  quantity    Int
+  price       Float?
+  purchased   Boolean             @default(false)
+  notes       String?
+  periodicity ShoppingPeriodicity
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  // Relaciones
+  categoryId String
+  category   ShoppingCategory @relation(fields: [categoryId], references: [id])
+  addedById  String
+  addedBy    User             @relation("AddedBy", fields: [addedById], references: [id])
+}
+
+enum ShoppingPeriodicity {
+  WEEKLY
+  MONTHLY
+  ONCE
+}
+
+// Modelo para la planificación de comidas
+model MealPlan {
+  id              String   @id @default(uuid())
+  date            DateTime
+  mealType        MealType
+  name            String
+  description     String?
+  estimatedCost   Float?
+  preparationTime Int? // en minutos
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relaciones
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+}
+
+enum MealType {
+  BREAKFAST
+  MIDMORNING
+  LUNCH
+  DINNER
+}
+
+// Modelo para los recordatorios
+model Reminder {
+  id          String           @id @default(uuid())
+  title       String
+  description String?
+  dateTime    DateTime
+  priority    ReminderPriority
+  completed   Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // Relaciones
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+enum ReminderPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+// Modelo para carteras/billeteras
+model Wallet {
+  id        String   @id @default(uuid())
+  name      String
+  balance   Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  ownerId      String
+  owner        User          @relation(fields: [ownerId], references: [id])
+  transactions Transaction[]
+}
+
+// Modelo para transacciones financieras
+model Transaction {
+  id          String          @id @default(uuid())
+  amount      Float
+  description String?
+  date        DateTime
+  type        TransactionType
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // Relaciones
+  categoryId String
+  category   FinanceCategory @relation(fields: [categoryId], references: [id])
+  walletId   String
+  wallet     Wallet          @relation(fields: [walletId], references: [id])
+  userId     String
+  user       User            @relation(fields: [userId], references: [id])
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+  LOAN_GIVEN
+  LOAN_RECEIVED
+}
+
+// Modelo para categorías financieras
+model FinanceCategory {
+  id                  String          @id @default(uuid())
+  name                String
+  type                TransactionType
+  color               String?
+  allocatedPercentage Float? // Porcentaje del presupuesto destinado a esta categoría
+
+  // Relaciones
+  transactions Transaction[]
+}
+
+// Modelo para préstamos
+model Loan {
+  id          String    @id @default(uuid())
+  amount      Float
+  description String?
+  date        DateTime
+  dueDate     DateTime?
+  isPaid      Boolean   @default(false)
+  type        LoanType // Si es un préstamo dado o recibido
+  personName  String // Nombre de la persona a quien se prestó o de quien se recibió
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relaciones - podríamos vincular a transacciones pero lo mantenemos simple por ahora
+}
+
+enum LoanType {
+  GIVEN
+  RECEIVED
+}
+
+// Modelo para configuración de la aplicación
+model AppSettings {
+  id          String  @id @default(uuid())
+  key         String  @unique
+  value       String
+  description String?
+}
