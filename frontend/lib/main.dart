@@ -8,6 +8,8 @@ import 'package:my_money/features/auth/views/auth_screen.dart';
 import 'package:my_money/features/home/views/home_screen.dart';
 import 'package:my_money/shared/theme/app_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:my_money/features/finances/bloc/finances_bloc.dart';
+import 'package:my_money/features/finances/services/finances_service.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -22,12 +24,19 @@ void main() async {
 
   final apiService = ApiService();
   final authService = AuthService(apiService);
+  final financesService = FinancesService(apiService);
 
   runApp(
-    BlocProvider<AuthBloc>(
-      create:
-          (context) =>
-              AuthBloc(authService: authService)..add(AuthCheckStatusEvent()),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>(
+          create: (context) => AuthBloc(authService: authService)
+            ..add(AuthCheckStatusEvent()),
+        ),
+        BlocProvider<FinancesBloc>(
+          create: (context) => FinancesBloc(financesService: financesService),
+        ),
+      ],
       child: const MyApp(),
     ),
   );
@@ -41,14 +50,16 @@ class MyApp extends StatelessWidget {
     // Crear instancias de servicios
     final apiService = ApiService();
     final authService = AuthService(apiService);
+    final financesService = FinancesService(apiService);
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create:
-              (context) =>
-                  AuthBloc(authService: authService)
-                    ..add(AuthCheckStatusEvent()),
+        BlocProvider<AuthBloc>(
+          create: (context) => AuthBloc(authService: authService)
+            ..add(AuthCheckStatusEvent()),
+        ),
+        BlocProvider<FinancesBloc>(
+          create: (context) => FinancesBloc(financesService: financesService),
         ),
       ],
       child: BlocListener<AuthBloc, AuthState>(

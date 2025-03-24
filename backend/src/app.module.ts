@@ -18,16 +18,15 @@ import { AppService } from './app.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
     }),
     PrismaModule,
+    AuthModule,
+    UsersModule,
     ActivitiesModule,
     ShoppingModule,
     MealPlanningModule,
     RemindersModule,
     FinancesModule,
-    UsersModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

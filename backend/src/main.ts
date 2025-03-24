@@ -13,7 +13,7 @@ async function bootstrap() {
   
   // Configurar CORS
   app.enableCors({
-    origin: process.env.NODE_ENV === 'production' 
+    origin: process.env.NODE_ENV === 'production'
       ? ['https://mymoney.com', 'https://app.mymoney.com'] 
       : '*',  // Permitir cualquier origen en desarrollo
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -49,8 +49,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
   
   // Iniciar servidor
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
+  await app.listen(3001);
   console.log(`Application running on: ${await app.getUrl()}`);
 }
 bootstrap();

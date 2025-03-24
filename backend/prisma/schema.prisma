@@ -31,6 +31,9 @@ model User {
   transactions  Transaction[]
   shoppingItems ShoppingItem[] @relation("AddedBy")
   mealPlans     MealPlan[]
+  categories    Category[]
+  budgets       Budget[]
+  loans         Loan[]
 }
 
 enum UserRole {
@@ -148,13 +151,38 @@ model Wallet {
   id        String   @id @default(uuid())
   name      String
   balance   Float    @default(0)
+  currency  String   @default("MXN")
+  icon      String?
+  color     String?
+  isDefault Boolean  @default(false)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relaciones
-  ownerId      String
-  owner        User          @relation(fields: [ownerId], references: [id])
   transactions Transaction[]
+  budgets      Budget[]
+  loans        Loan[]
+
+  @@map("wallets")
+}
+
+// Modelo para categorías financieras
+model Category {
+  id          String          @id @default(uuid())
+  name        String
+  description String?
+  icon        String?
+  color       String?
+  type        TransactionType
+  isDefault   Boolean         @default(false)
+  userId      String?
+  user        User?           @relation(fields: [userId], references: [id])
+
+  transactions Transaction[]
+  budgetItems  BudgetItem[]
+
+  @@map("categories")
 }
 
 // Modelo para transacciones financieras
@@ -162,38 +190,25 @@ model Transaction {
   id          String          @id @default(uuid())
   amount      Float
   description String?
-  date        DateTime
+  date        DateTime        @default(now())
   type        TransactionType
+  categoryId  String
+  category    Category        @relation(fields: [categoryId], references: [id])
+  walletId    String
+  wallet      Wallet          @relation(fields: [walletId], references: [id])
+  userId      String
+  user        User            @relation(fields: [userId], references: [id])
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
-  // Relaciones
-  categoryId String
-  category   FinanceCategory @relation(fields: [categoryId], references: [id])
-  walletId   String
-  wallet     Wallet          @relation(fields: [walletId], references: [id])
-  userId     String
-  user       User            @relation(fields: [userId], references: [id])
+  @@map("transactions")
 }
 
 enum TransactionType {
   INCOME
   EXPENSE
   TRANSFER
-  LOAN_GIVEN
-  LOAN_RECEIVED
-}
-
-// Modelo para categorías financieras
-model FinanceCategory {
-  id                  String          @id @default(uuid())
-  name                String
-  type                TransactionType
-  color               String?
-  allocatedPercentage Float? // Porcentaje del presupuesto destinado a esta categoría
-
-  // Relaciones
-  transactions Transaction[]
+  LOAN
 }
 
 // Modelo para préstamos
@@ -201,20 +216,19 @@ model Loan {
   id          String    @id @default(uuid())
   amount      Float
   description String?
-  date        DateTime
+  date        DateTime  @default(now())
   dueDate     DateTime?
   isPaid      Boolean   @default(false)
-  type        LoanType // Si es un préstamo dado o recibido
-  personName  String // Nombre de la persona a quien se prestó o de quien se recibió
+  isGiven     Boolean // true si prestamos dinero, false si nos prestaron
+  personName  String
+  walletId    String
+  wallet      Wallet    @relation(fields: [walletId], references: [id])
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  // Relaciones - podríamos vincular a transacciones pero lo mantenemos simple por ahora
-}
-
-enum LoanType {
-  GIVEN
-  RECEIVED
+  @@map("loans")
 }
 
 // Modelo para configuración de la aplicación
@@ -223,4 +237,41 @@ model AppSettings {
   key         String  @unique
   value       String
   description String?
+}
+
+// Modelo para presupuestos
+model Budget {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  type        BudgetType
+  walletId    String
+  wallet      Wallet       @relation(fields: [walletId], references: [id])
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  items       BudgetItem[]
+
+  @@map("budgets")
+}
+
+enum BudgetType {
+  WEEKLY
+  MONTHLY
+}
+
+// Modelo para ítems del presupuesto
+model BudgetItem {
+  id         String   @id @default(uuid())
+  amount     Float
+  spent      Float    @default(0)
+  budgetId   String
+  budget     Budget   @relation(fields: [budgetId], references: [id])
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@map("budget_items")
 }

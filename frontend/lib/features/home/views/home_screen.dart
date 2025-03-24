@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_money/core/models/user_model.dart';
 import 'package:my_money/features/auth/bloc/auth_bloc.dart';
+import 'package:my_money/features/finances/views/finances_screen.dart';
 import 'package:my_money/shared/theme/app_theme.dart';
 import 'package:my_money/shared/widgets/custom_button.dart';
 
@@ -144,13 +145,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
-    // Por ahora, solo mostraremos diferentes contenidos en función del índice seleccionado
-    // Más adelante reemplazaremos esto con los módulos reales
     switch (_selectedIndex) {
       case 0:
         return _buildDashboard();
       case 1:
-        return _buildPlaceholder('Módulo de Finanzas');
+        return FinancesScreen();
       case 2:
         return _buildPlaceholder('Módulo de Actividades');
       case 3:
