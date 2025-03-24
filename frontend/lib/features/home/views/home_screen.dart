@@ -7,11 +7,8 @@ import 'package:my_money/shared/widgets/custom_button.dart';
 
 class HomeScreen extends StatefulWidget {
   final User user;
-  
-  const HomeScreen({
-    Key? key,
-    required this.user,
-  }) : super(key: key);
+
+  const HomeScreen({Key? key, required this.user}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -19,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  
+
   final List<String> _sectionTitles = [
     'Resumen',
     'Finanzas',
@@ -28,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
     'Comidas',
     'Recordatorios',
   ];
-  
+
   final List<IconData> _sectionIcons = [
     Icons.dashboard,
     Icons.account_balance_wallet,
@@ -37,13 +34,13 @@ class _HomeScreenState extends State<HomeScreen> {
     Icons.restaurant,
     Icons.notifications,
   ];
-  
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,28 +92,24 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-  
+
   Widget _buildDrawer() {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text(widget.user.name),
+            decoration: BoxDecoration(color: AppTheme.primaryColor),
+            accountName: Text(widget.user.name ?? 'Usuario'),
             accountEmail: Text(widget.user.email),
             currentAccountPicture: CircleAvatar(
-              backgroundColor: AppTheme.secondaryColor,
+              backgroundColor: Colors.white,
               child: Text(
-                widget.user.name[0].toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+                widget.user.name?.isNotEmpty == true 
+                    ? widget.user.name![0].toUpperCase() 
+                    : widget.user.email[0].toUpperCase(),
+                style: TextStyle(fontSize: 24.0),
               ),
-            ),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor,
             ),
           ),
           for (int i = 0; i < _sectionTitles.length; i++)
@@ -150,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-  
+
   Widget _buildBody() {
     // Por ahora, solo mostraremos diferentes contenidos en función del índice seleccionado
     // Más adelante reemplazaremos esto con los módulos reales
@@ -171,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return _buildDashboard();
     }
   }
-  
+
   Widget _buildDashboard() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -180,16 +173,16 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Text(
             '¡Hola, ${widget.user.name}!',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             'Bienvenido a tu panel de gestión familiar',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppTheme.textSecondaryColor,
-                ),
+              color: AppTheme.textSecondaryColor,
+            ),
           ),
           const SizedBox(height: 24),
           Expanded(
@@ -249,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-  
+
   Widget _buildDashboardCard(
     String title,
     IconData icon,
@@ -259,9 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
@@ -270,11 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 48,
-                color: color,
-              ),
+              Icon(icon, size: 48, color: color),
               const SizedBox(height: 16),
               Text(
                 title,
@@ -298,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-  
+
   Widget _buildPlaceholder(String title) {
     return Center(
       child: Column(
@@ -319,8 +306,8 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             'Próximamente disponible',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppTheme.textSecondaryColor,
-                ),
+              color: AppTheme.textSecondaryColor,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -333,4 +320,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-} 
+}
