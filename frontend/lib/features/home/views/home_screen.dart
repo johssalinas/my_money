@@ -16,9 +16,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  String _currentTitle = 'Inicio';
 
   final List<String> _sectionTitles = [
-    'Resumen',
+    'Inicio',
     'Finanzas',
     'Actividades',
     'Compras',
@@ -38,6 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _currentTitle = _sectionTitles[index];
     });
   }
 
@@ -45,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_sectionTitles[_selectedIndex]),
+        title: Text(_currentTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.person),
@@ -58,35 +60,32 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: _buildDrawer(),
       body: _buildBody(),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
+        currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: AppTheme.primaryColor,
-        unselectedItemColor: AppTheme.textTertiaryColor,
-        items: [
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
           BottomNavigationBarItem(
-            icon: Icon(_sectionIcons[0]),
-            label: _sectionTitles[0],
+            icon: Icon(Icons.account_balance_wallet),
+            label: 'Finanzas',
           ),
           BottomNavigationBarItem(
-            icon: Icon(_sectionIcons[1]),
-            label: _sectionTitles[1],
+            icon: Icon(Icons.checklist),
+            label: 'Actividades',
           ),
           BottomNavigationBarItem(
-            icon: Icon(_sectionIcons[2]),
-            label: _sectionTitles[2],
+            icon: Icon(Icons.shopping_cart),
+            label: 'Compras',
           ),
           BottomNavigationBarItem(
-            icon: Icon(_sectionIcons[3]),
-            label: _sectionTitles[3],
+            icon: Icon(Icons.restaurant),
+            label: 'Comidas',
           ),
           BottomNavigationBarItem(
-            icon: Icon(_sectionIcons[4]),
-            label: _sectionTitles[4],
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(_sectionIcons[5]),
-            label: _sectionTitles[5],
+            icon: Icon(Icons.notifications),
+            label: 'Recordatorios',
           ),
         ],
       ),
@@ -105,8 +104,8 @@ class _HomeScreenState extends State<HomeScreen> {
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
               child: Text(
-                widget.user.name?.isNotEmpty == true 
-                    ? widget.user.name![0].toUpperCase() 
+                widget.user.name?.isNotEmpty == true
+                    ? widget.user.name![0].toUpperCase()
                     : widget.user.email[0].toUpperCase(),
                 style: TextStyle(fontSize: 24.0),
               ),

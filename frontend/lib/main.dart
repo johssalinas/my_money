@@ -9,6 +9,8 @@ import 'package:my_money/features/home/views/home_screen.dart';
 import 'package:my_money/shared/theme/app_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -52,11 +54,11 @@ class MyApp extends StatelessWidget {
       child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthenticatedState) {
-            // Navegar al dashboard
-            Navigator.of(context).pushReplacementNamed('/dashboard');
+            navigatorKey.currentState?.pushReplacementNamed('/dashboard');
           }
         },
         child: MaterialApp(
+          navigatorKey: navigatorKey,
           title: 'My Money',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
@@ -78,6 +80,15 @@ class MyApp extends StatelessWidget {
               }
             },
           ),
+          routes: {
+            '/dashboard':
+                (context) => HomeScreen(
+                  user:
+                      (context.read<AuthBloc>().state as AuthenticatedState)
+                          .user,
+                ),
+            '/login': (context) => AuthScreen(),
+          },
         ),
       ),
     );
